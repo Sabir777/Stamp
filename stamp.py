@@ -1,8 +1,20 @@
 import os
 import random
+import shutil
 from datetime import datetime, timedelta
 from pathlib import Path
+
 from PIL import Image, ImageDraw, ImageFont
+
+# Базовая дата
+BASE_DT = datetime(2026, 11, 24, 14, 45)
+
+# Папка для рекурсивного хранения папок с фото
+INPUT_DIR = Path("Input")
+
+# Папка для сохранения результата
+OUTPUT_DIR = Path("Output")
+JPG_EXTS = {".jpg"}
 
 FONT_CANDIDATES = [
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -27,6 +39,10 @@ def random_date(start: datetime, end: datetime) -> datetime:
     return start + timedelta(seconds=random.randint(0, delta))
 
 
+def jitter_date(base: datetime, max_minutes: int = 10) -> datetime:
+    return base + timedelta(seconds=random.randint(0, max_minutes * 60))
+
+
 def stamp(src: Path, dst: Path, dt: datetime) -> None:
     img = Image.open(src).convert("RGB")
     w, h = img.size
@@ -46,6 +62,19 @@ def stamp(src: Path, dst: Path, dt: datetime) -> None:
 
 
 if __name__ == "__main__":
-    dt = random_date(datetime(2026, 1, 1), datetime(2026, 11, 24, 23, 59))
-    stamp(Path("in.jpg"), Path("out.jpg"), dt)
-    print("Поставлена дата:", dt)
+    random.seed()
+    base = BASE_DT
+    files = sorted(p for p in INPUT_DIR.rglob("*") if p.is_file())
+    for src in files:
+        rel = src.relative_to(INPUT_DIR)
+        dst = OUTPUT_DIR / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+
+        if src.suffix.lower() in JPG_EXTS:
+            dt = jitter_date(base)
+            base = dt
+            stamp(src, dst, dt)
+            print(f"{rel}  ->  {dt.strftime('%d.%m.%Y %H:%M')}")
+        else:
+            shutil.copy2(src, dst)
+            print(f"{rel}  ->  (копия без штампа)")
