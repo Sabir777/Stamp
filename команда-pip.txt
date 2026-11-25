@@ -1,0 +1,11 @@
+pkg install python-pillow ttf-dejavu
+pip install pillow
+
+# ImageMagick
+# текстовый знак в правом нижнем углу
+magick in.jpg -gravity southeast -pointsize 40 -fill white \
+  -annotate +30+30 "Мой текст" out.jpg
+
+# логотип с прозрачностью
+magick in.jpg logo.png -gravity southeast -geometry +20+20 \
+  -compose dissolve -define compose:args=60 -composite out.jpg
