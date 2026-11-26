@@ -7,7 +7,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 # Базовая дата
-BASE_DT = datetime(2026, 11, 24, 14, 45)
+BASE_DT = datetime(2026, 11, 25, 16, 30)
 
 # Папка для рекурсивного хранения папок с фото
 INPUT_DIR = Path("Input")
@@ -34,12 +34,7 @@ def find_font() -> str:
 FONT = find_font()
 
 
-def random_date(start: datetime, end: datetime) -> datetime:
-    delta = int((end - start).total_seconds())
-    return start + timedelta(seconds=random.randint(0, delta))
-
-
-def jitter_date(base: datetime, max_minutes: int = 10) -> datetime:
+def jitter_date(base: datetime, max_minutes: int = 2) -> datetime:
     return base + timedelta(seconds=random.randint(0, max_minutes * 60))
 
 
